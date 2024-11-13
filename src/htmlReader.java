@@ -1,33 +1,42 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-public class htmlReader {
+public class htmlReader implements ActionListener {
+    JFrame frame;
+    JPanel backPanel;
+    JPanel bottomPanel;
+    JPanel urlAndKeyword;
+    JButton go;
+    JLabel output;
+    TextArea keywordTextArea;
+    TextArea linkTextArea;
     public static void main(String[] args) {
-        //noinspection InstantiationOfUtilityClass
         new htmlReader();
     }
     public htmlReader() {
-        String keyword = "japan";
-        boolean capsSensitive = false;
-        try{
-            URL url = new URL("https://en.wikipedia.org/wiki/Shingo_Adachi");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
-            String line = "";
-            while(line!=null){
-                while(line.contains("href")){
-                    String link = getLink(line, url);
-                    //noinspection ConstantValue
-                    if((!capsSensitive&&link.toLowerCase().contains(keyword.toLowerCase()))||(capsSensitive&&link.contains(keyword))){
-                        System.out.println(link);
-                    }
-                    line = line.substring(line.indexOf("\"",line.indexOf("href=\"")+6));
-                }
-                line = reader.readLine();
-            }
-        } catch(Exception exception){
-            System.out.println(exception.getMessage());
-        }
+        frame = new JFrame("Link Finder");
+        frame.setSize(509,330);
+        backPanel = new JPanel(new GridLayout(2,1));
+        bottomPanel=new JPanel(new GridLayout(1,2));
+        urlAndKeyword = new JPanel(new GridLayout(2,1));
+        go = new JButton("GO");
+        go.addActionListener(this);
+        output = new JLabel();
+        frame.add(backPanel);
+        backPanel.add(output);
+        backPanel.add(bottomPanel);
+        bottomPanel.add(urlAndKeyword);
+        bottomPanel.add(go);
+        keywordTextArea = new TextArea("Put your keyword here...");
+        linkTextArea = new TextArea("Put your link here...");
+        urlAndKeyword.add(keywordTextArea);
+        urlAndKeyword.add(linkTextArea);
+        frame.setVisible(true);
     }
 
     private static String getLink(String line, URL url) {
@@ -45,5 +54,32 @@ public class htmlReader {
             link="https://"+link;
         }
         return link;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String keyword = keywordTextArea.getText();
+        boolean capsSensitive = false;
+        try{
+            URL url = new URL(linkTextArea.getText());
+            BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+            String line = "";
+            String overallOutput ="";
+            while(line!=null){
+                while(line.contains("href")){
+                    String link = getLink(line, url);
+                    //noinspection ConstantValue
+                    if((!capsSensitive&&link.toLowerCase().contains(keyword.toLowerCase()))||(capsSensitive&&link.contains(keyword))){
+                        //noinspection StringConcatenationInLoop
+                        overallOutput=overallOutput+link+"\n";
+                    }
+                    line = line.substring(line.indexOf("\"",line.indexOf("href=\"")+6));
+                }
+                line = reader.readLine();
+            }
+            output.setText(overallOutput);
+        } catch(Exception exception){
+            System.out.println(exception.getMessage());
+        }
     }
 }
