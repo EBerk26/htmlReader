@@ -12,7 +12,7 @@ public class htmlReader implements ActionListener {
     JPanel bottomPanel;
     JPanel urlAndKeyword;
     JButton go;
-    JLabel output;
+    TextArea output;
     TextArea keywordTextArea;
     TextArea linkTextArea;
     public static void main(String[] args) {
@@ -26,7 +26,8 @@ public class htmlReader implements ActionListener {
         urlAndKeyword = new JPanel(new GridLayout(2,1));
         go = new JButton("GO");
         go.addActionListener(this);
-        output = new JLabel();
+        output = new TextArea();
+        output.setEditable(false);
         frame.add(backPanel);
         backPanel.add(output);
         backPanel.add(bottomPanel);
@@ -64,20 +65,18 @@ public class htmlReader implements ActionListener {
             URL url = new URL(linkTextArea.getText());
             BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
             String line = "";
-            String overallOutput ="";
             while(line!=null){
                 while(line.contains("href")){
                     String link = getLink(line, url);
                     //noinspection ConstantValue
                     if((!capsSensitive&&link.toLowerCase().contains(keyword.toLowerCase()))||(capsSensitive&&link.contains(keyword))){
-                        //noinspection StringConcatenationInLoop
-                        overallOutput=overallOutput+link+"\n";
+                        output.setText(output.getText()+link+"\n");
+                        System.out.println(link);
                     }
                     line = line.substring(line.indexOf("\"",line.indexOf("href=\"")+6));
                 }
                 line = reader.readLine();
             }
-            output.setText(overallOutput);
         } catch(Exception exception){
             System.out.println(exception.getMessage());
         }
