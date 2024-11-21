@@ -59,6 +59,7 @@ public class htmlReader implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        output.setText("");
         String keyword = keywordTextArea.getText();
         boolean capsSensitive = false;
         try{
